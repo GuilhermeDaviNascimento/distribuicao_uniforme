@@ -1,0 +1,83 @@
+const prompt = require("prompt-sync") ({sigint: false});
+
+const usuarios = []
+let numDePessoa = Number(prompt('Digite a quantidade de pessoas envolvidas: '))
+
+for (let i = 0; i <= numDePessoa - 1; i++){
+    const NomedoUsuario = prompt(`Digite o nome da pessoa de número ${i + 1}: `)
+    const valorPagoPeloUsuario = Number(prompt(`Digite quanto ${NomedoUsuario} pagou: `))
+    const user =({name: NomedoUsuario, valorPago: valorPagoPeloUsuario})
+    usuarios.push(user)
+}
+
+//pegar a quantiade de pessoas, seus nomes e quanto cada uma pagou e colocar dentro um array em formato de objeto.
+
+const totalPago = usuarios.reduce((acumulador, usuario) => acumulador + usuario.valorPago, 0);
+const media = totalPago / numDePessoa
+const devendo = []
+const recebendo = []
+const transfencias = []
+
+//pegar o total pago por todos e criar uma média.
+
+usuarios.forEach(function (usuario) {
+    if (usuario.valorPago > media){
+        usuario.valorPago = usuario.valorPago - media
+        recebendo.push(usuario)
+
+    } else if (usuario.valorPago < media){
+        usuario.valorPago = (usuario.valorPago - media) * -1
+        devendo.push(usuario)
+
+    } else if (usuario.valorPago === media){
+        usuario.valorPago = 0
+    }
+});
+
+//seperar quem está abaixo da média e colocar no array de devendo e quem está acima da media e colocar no array de recebendo
+
+ while (recebendo.reduce((sum, item) => sum + item.valorPago, 0) !== 0){
+
+         if (recebendo[0].valorPago > devendo[0].valorPago){
+            recebendo[0].valorPago = recebendo[0].valorPago - devendo[0].valorPago;
+            transfencias.push({
+                de: devendo[0].name,
+                para: recebendo[0].name,
+                valor: devendo[0].valorPago
+            })
+            devendo[0].valorPago = 0
+            // IF1 se o primeiro valor do array recebendo for maior que o primeiro valor do array devendo
+        } else if (devendo[0].valorPago > recebendo[0].valorPago){
+            devendo[0].valorPago = devendo[0].valorPago - recebendo[0].valorPago;
+
+            transfencias.push({
+                de: devendo[0].name,
+                para: recebendo[0].name,
+                valor: recebendo[0].valorPago
+            })
+            recebendo[0].valorPago = 0
+            // IF2 se o primeiro valor do array recebendo for menor que o primeiro valor do array devendo
+        } else if (devendo[0].valorPago === recebendo[0].valorPago){
+            transfencias.push({
+                de: devendo[0].name,
+                para: recebendo[0].name,
+                valor: recebendo[0].valorPago
+            })
+            devendo[0].valorPago = 0
+            recebendo[0].valorPago = 0
+            // IF3 se os dois valores forem iguais
+        }
+     recebendo.forEach(function (usuario) {
+        if (usuario.valorPago === 0){
+            recebendo.splice(0, 1)
+        }
+    })
+    devendo.forEach(function (usuario) {
+        if (usuario.valorPago === 0){
+            devendo.splice(0, 1)
+        }
+    })
+    //ForEach para remover dos arrays as casas que forem zeradas.
+ }
+
+console.log(transfencias)
